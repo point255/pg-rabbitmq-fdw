@@ -1,10 +1,10 @@
 from multicorn import ForeignDataWrapper
 from multicorn.utils import log_to_postgres as log2pg
 
-import httplib
 import json
 import logging
 import pika
+
 
 class RabbitmqFDW(ForeignDataWrapper):
 
@@ -20,8 +20,9 @@ class RabbitmqFDW(ForeignDataWrapper):
 
         self.columns = columns
 
-        #rabbitmq_parameters = pika.URLParameters('amqp://guest:guest@localhost:5672/%2F')
-        self.rabbitmq_parameters = pika.URLParameters('amqp://{0}:{1}@{2}:{3}/%2F'.format(self.user, self.password, self.host, self.port))
+        # rabbitmq_parameters = pika.URLParameters('amqp://guest:guest@localhost:5672/%2F')
+        self.rabbitmq_parameters = pika.URLParameters(
+            'amqp://{0}:{1}@{2}:{3}/%2F'.format(self.user, self.password, self.host, self.port))
 
     @property
     def rowid_column(self):
@@ -31,10 +32,11 @@ class RabbitmqFDW(ForeignDataWrapper):
             column name should be subsequently present in every returned
             resultset. """
 
-        return self._rowid_column;
+        return self._rowid_column
 
-    def execute(self, quals, columns):
-        """ Should Execute the query but we don't handle it (for now?) """
+    # noinspection PyMethodMayBeStatic
+    def execute(self, quals, columns, **kwargs):
+        """ Should Execute the query but we don't handle it (for now?)"""
 
         log2pg("SELECT isn't implemented for RabbitMQ", logging.ERROR)
         yield {0, 0}
@@ -44,16 +46,26 @@ class RabbitmqFDW(ForeignDataWrapper):
 
         log2pg('MARK Request - new values:  %s' % new_values, logging.DEBUG)
 
-        if not 'table' in new_values:
+        if not ('table' in new_values):
             log2pg('It requires "table" column. Missing in: %s' % new_values, logging.ERROR)
 
-        if not 'id' in new_values:
+        if not ('id' in new_values):
             log2pg('It requires "id" column. Missing in: %s' % new_values, logging.ERROR)
 
-        if not 'action' in new_values:
+        if not ('action' in new_values):
             log2pg('It requires "action" column. Missing in: %s' % new_values, logging.ERROR)
 
         return self.rabbitmq_publish(new_values)
+
+    def update(self, oldvalues, newvalues):
+        pass
+
+    def delete(self, oldvalues):
+        pass
+
+    @classmethod
+    def import_schema(self, schema, srv_options, options, restriction_type, restricts):
+        pass
 
     def rabbitmq_publish(self, values):
         """ Publish a message in RabbitMQ exchange """
@@ -65,7 +77,7 @@ class RabbitmqFDW(ForeignDataWrapper):
 
         channel.basic_publish(
             self.exchange,
-            '', #'{0}:{1}'.format(values['table'], values['id']),
+            '',  # '{0}:{1}'.format(values['table'], values['id']),
             content,
             pika.BasicProperties(
                 content_type='text/plain',

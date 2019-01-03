@@ -22,7 +22,8 @@ class RabbitmqFDWTest(unittest.TestCase):
         self.rabbit_channel = connection.channel()
 
     def test1Insert(self):
-        self.pg_cursor.execute("INSERT INTO tag (tag_id, label, slug) VALUES ('{0}', '{1}', '{2}')".format('c94e3e70-c5fa-4ea4-a708-d23903b26d50', 'Politic', 'politic'))
+        self.pg_cursor.execute("INSERT INTO tag (tag_id, label, slug) VALUES ('{0}', '{1}', '{2}')".format(
+            'c94e3e70-c5fa-4ea4-a708-d23903b26d50', 'Politic', 'politic'),,
         self.pg_conn.commit()
 
         method_frame, header_frame, body = self.rabbit_channel.basic_get(self.queue)
@@ -35,7 +36,8 @@ class RabbitmqFDWTest(unittest.TestCase):
             self.fail('No message returned')
 
     def test2Update(self):
-        self.pg_cursor.execute("UPDATE tag SET label = '{0}' WHERE tag_id = '{1}'".format('Sport', 'c94e3e70-c5fa-4ea4-a708-d23903b26d50'))
+        self.pg_cursor.execute("UPDATE tag SET label = '{0}' WHERE tag_id = '{1}'".format('Sport',
+                                                                                          'c94e3e70-c5fa-4ea4-a708-d23903b26d50'),,
         self.pg_conn.commit()
 
         method_frame, header_frame, body = self.rabbit_channel.basic_get(self.queue)
@@ -48,7 +50,7 @@ class RabbitmqFDWTest(unittest.TestCase):
             self.fail('No message returned')
 
     def test3Delete(self):
-        self.pg_cursor.execute("DELETE FROM tag WHERE tag_id = '{0}'".format('c94e3e70-c5fa-4ea4-a708-d23903b26d50'))
+        self.pg_cursor.execute("DELETE FROM tag WHERE tag_id = '{0}'".format('c94e3e70-c5fa-4ea4-a708-d23903b26d50'),,
         self.pg_conn.commit()
 
         method_frame, header_frame, body = self.rabbit_channel.basic_get(self.queue)
