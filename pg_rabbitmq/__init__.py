@@ -58,14 +58,14 @@ class RabbitmqFDW(ForeignDataWrapper):
         return self.rabbitmq_publish(new_values)
 
     def update(self, oldvalues, newvalues):
-        pass
+        log2pg("UPDATE isn't implemented for RabbitMQ", logging.ERROR)
 
     def delete(self, oldvalues):
-        pass
+        log2pg("DELETE isn't implemented for RabbitMQ", logging.ERROR)
 
     @classmethod
-    def import_schema(self, schema, srv_options, options, restriction_type, restricts):
-        pass
+    def import_schema(cls, schema, srv_options, options, restriction_type, restricts):
+        log2pg("IMPORT_SCHEMA isn't implemented for RabbitMQ", logging.ERROR)
 
     def rabbitmq_publish(self, values):
         """ Publish a message in RabbitMQ exchange """
