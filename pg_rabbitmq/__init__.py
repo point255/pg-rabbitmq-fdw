@@ -1,7 +1,6 @@
 from multicorn import ForeignDataWrapper
 from multicorn.utils import log_to_postgres as log2pg
 
-import json
 import logging
 import pika
 
@@ -16,6 +15,8 @@ class RabbitmqFDW(ForeignDataWrapper):
         self.user = options.get('user', 'guest')
         self.password = options.get('password', 'guest')
         self.exchange = options.get('exchange', 'indexing')
+        self.exchange_type = options.get('exchange_type', 'fanout')
+        self.routing_key = options.get('routing_key', 'postgres')
         self._rowid_column = options.get('rowid_column', 'id')
 
         self.columns = columns
@@ -72,16 +73,18 @@ class RabbitmqFDW(ForeignDataWrapper):
 
         connection = pika.BlockingConnection(self.rabbitmq_parameters)
         channel = connection.channel()
-
-        content = json.dumps(values)
+        channel.exchange_declare(
+            exchange=self.exchange,
+            exchange_type=self.exchange_type,
+            durable=True)
 
         channel.basic_publish(
             self.exchange,
-            '',  # '{0}:{1}'.format(values['table'], values['id']),
-            content,
+            self.routing_key,
+            '',
             pika.BasicProperties(
-                content_type='text/plain',
-                delivery_mode=2
+                delivery_mode=2,
+                headers=values
             )
         )
 
