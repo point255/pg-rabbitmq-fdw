@@ -23,7 +23,7 @@ class RabbitmqFDWTest(unittest.TestCase):
 
     def test1Insert(self):
         self.pg_cursor.execute("INSERT INTO tag (tag_id, label, slug) VALUES ('{0}', '{1}', '{2}')".format(
-            'c94e3e70-c5fa-4ea4-a708-d23903b26d50', 'Politic', 'politic'),,
+            'c94e3e70-c5fa-4ea4-a708-d23903b26d50', 'Politic', 'politic')
         self.pg_conn.commit()
 
         method_frame, header_frame, body = self.rabbit_channel.basic_get(self.queue)

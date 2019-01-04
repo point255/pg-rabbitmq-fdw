@@ -7,17 +7,17 @@ OPTIONS (
 );
 
 -- Create test table
-CREATE TABLE tag (
-    tag_id uuid NOT NULL,
+CREATE TABLE tag_rabbitmq (
+    id bigint NOT NULL,
     label text,
     slug text,
-    CONSTRAINT tag_pkey PRIMARY KEY (tag_id)
+    CONSTRAINT id_pkey PRIMARY KEY (id)
 );
 
 -- Create the the foreign table (with option for RabbitMQ)
-CREATE FOREIGN TABLE tag_rabbitmq (
+CREATE FOREIGN TABLE rabbitmq (
+    "id" bigint,
     "table" text,
-    "id" uuid,
     "action" text
 )
 SERVER multicorn_rabbitmq
@@ -34,24 +34,24 @@ OPTIONS (
 -- The only difference is the "action" value
 CREATE OR REPLACE FUNCTION index_tag() RETURNS trigger AS $def$
     BEGIN
-        INSERT INTO tag_rabbitmq ("table", "id", "action")
-        VALUES ('tag', NEW.tag_id, 'insert');
+        INSERT INTO tag_rabbitmq ("id", "table", "action")
+        VALUES (NEW.tag_id, 'tag', 'insert');
         RETURN NEW;
     END;
 $def$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION reindex_tag() RETURNS trigger AS $def$
     BEGIN
-        INSERT INTO tag_rabbitmq ("table", "id", "action")
-        VALUES ('tag', NEW.tag_id, 'update');
+        INSERT INTO tag_rabbitmq ("id", "table", "action")
+        VALUES (NEW.tag_id, 'tag', 'update');
         RETURN NEW;
     END;
 $def$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION delete_tag() RETURNS trigger AS $def$
     BEGIN
-        INSERT INTO tag_rabbitmq ("table", "id", "action")
-        VALUES ('tag', OLD.tag_id, 'delete');
+        INSERT INTO tag_rabbitmq ("id", "table", "action")
+        VALUES (OLD.tag_id, 'tag', 'delete');
         RETURN OLD;
     END;
 $def$ LANGUAGE plpgsql;
