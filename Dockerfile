@@ -1,11 +1,11 @@
-FROM postgres:10.1
+FROM postgres:11
 
 RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q make gcc git postgresql-server-dev-10 python-dev python-setuptools python-pip
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q make gcc git postgresql-server-dev-11 python-dev python-setuptools python-pip
 
 RUN git clone https://github.com/Kozea/Multicorn /tmp/multicorn && \
     cd /tmp/multicorn && \
-    git checkout v1.3.4 && \
+    git checkout postgres11 && \
     make install
 
 RUN mkdir /tmp/pg-rabbitmq-fdw
