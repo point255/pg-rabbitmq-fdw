@@ -6,7 +6,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q make gcc git postgresql
 RUN git clone https://github.com/Kozea/Multicorn /tmp/multicorn && \
     cd /tmp/multicorn && \
     git checkout postgres11 && \
-    make install
+    make PYTHON_OVERRIDE="python2.7" install
 
 RUN mkdir /tmp/pg-rabbitmq-fdw
 
